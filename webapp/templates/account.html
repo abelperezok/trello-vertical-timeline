@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Vertical Time line - Account</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="row m-3">
+    <div class="col-md-12">
+        <h3 class="text-center">Account page</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <form method="POST" action="{{ url_for('revoke') }}">
+            <div class="form-row align-items-center">
+                <div class="col-auto">
+                    <label for="exampleInputEmail1">Trello Authorisation Token</label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" class="form-control" id="exampleInputEmail1" value="{{ token }}" readonly>
+                </div>
+                <div class="col-auto">
+                    {% if token %}
+                    <button type="submit" value="revoke" class="btn btn-outline-primary my-2 my-sm-0">Trello Revoke</button>
+                    {% else %}
+                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ authorize_url }}">Trello Authorise</a>
+                    {% endif%}
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

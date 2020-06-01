@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 from datetime import date
 from flask import request, render_template, session, redirect, jsonify, url_for, escape
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from flask_lambda import FlaskLambda
 from flask_awscognito import AWSCognitoAuthentication
@@ -10,20 +10,27 @@ import json
 import requests
 
 
-class TUser():
+# class TUser():
+    
+#     def __init__(self, username):
+#         self.is_authenticated = True
+#         self.is_active = True
+#         self.is_anonymous = False
+#         self.username = username
+#         self.claims = None
+
+#     def get_id(self):
+#         return 'user1'
+
+
+class TUser(UserMixin):
     
     def __init__(self, username):
-        self.is_authenticated = True
-        self.is_active = True
-        self.is_anonymous = False
         self.username = username
         self.claims = None
 
     def get_id(self):
-        return 'user1'
-
-
-
+        return self.username
 
 
 trello_api_url_base = 'https://api.trello.com/1'
@@ -88,7 +95,7 @@ def aws_cognito_redirect():
     user = TUser(claims['username'])
     login_user(user)
 
-    return redirect('/private')
+    return redirect(url_for('account'))
 
 
 @app.route('/config')

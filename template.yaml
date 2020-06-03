@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  hello-sam-flask
+  Trello Vertical timeline
 
-  Sample SAM Template for hello-sam-flask
+  Sample SAM Template for Trello Vertical timeline
 
 Globals:
   Function:
@@ -19,8 +19,8 @@ Resources:
   WebAppFunction:
     Type: AWS::Serverless::Function 
     Properties:
-      CodeUri: webapp/
-      Handler: app.app
+      CodeUri: vertical-timeline/
+      Handler: webapp.lambda.app
       Runtime: python3.8
       Events:
         AllRequests:

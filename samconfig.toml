@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "hello-sam-flask"
+s3_bucket = "abelperez-temp"
+s3_prefix = "hello-sam-flask"
+region = "eu-west-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "PoolDomainName=\"auth-flask-test\""

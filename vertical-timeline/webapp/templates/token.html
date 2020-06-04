@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <!-- function post(path, params, method = 'post') {
+            var form = document.createElement('form');
+            form.method = method;
+            form.action = path;
+
+            for (var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    var hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = key;
+                    hiddenField.value = params[key];
+                    form.appendChild(hiddenField);
+                }
+            }
+            document.body.appendChild(form);
+            form.submit();
+        } -->
+    <script type="text/javascript">
+        var token = new URLSearchParams(document.location.hash.substr(1)).get('token')
+        fetch('/token_post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            window.location.href = data.redirect;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    </script>
+</body>
+
+</html>

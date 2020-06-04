@@ -4,11 +4,14 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_lambda import FlaskLambda
 from flask_awscognito import AWSCognitoAuthentication
 
-import requests
+from webapp.trello_api import TrelloApi
 
 aws_auth = AWSCognitoAuthentication()
 login_manager = LoginManager()
-login_manager.login_view = "session_expired"
+login_manager.login_view = "auth.session_expired"
+
+trello_api_instance = TrelloApi()
+
 
 def configure_app(app):
 
@@ -23,10 +26,12 @@ def configure_app(app):
         # Include our Routes
         from webapp.main.routes import main
         from webapp.auth.routes import auth
+        from webapp.trello.routes import trello
 
         # Register Blueprints
         app.register_blueprint(main)
         app.register_blueprint(auth)
+        app.register_blueprint(trello)
 
         return app
 

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Vertical Time line - Events</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="row m-5 ">
+    <div class="col-md-12">
+        <h3 class="text-center">Timeline Style : Demo-8</h3>
+    </div>
+</div>
+
+{% if model %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-timeline8">
+            
+            {% for item in model %}
+            <div class="timeline">
+                <span class="timeline-icon"></span>
+                <span class="year">{{ item.due_formatted }}</span>
+                <div class="timeline-content">
+                    <h3 class="title">{{ item.name }}</h3>
+                    <p class="description">
+                        {{ item.desc }} 
+                    </p>
+                    <a href="{{ item.url }}" class="btn p-0">Read more</a>
+                </div>
+            </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+</div>
+
+{% endif%}
+
+{% endblock %}

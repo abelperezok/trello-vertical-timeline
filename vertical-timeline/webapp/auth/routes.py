@@ -1,7 +1,7 @@
-from urllib.parse import urlencode
 from flask import Blueprint, render_template, request, session, url_for, redirect, current_app
 from flask_login import login_user, login_required, logout_user
 from webapp import aws_auth
+from webapp import trello_api_instance
 from webapp.models import User
 
 auth = Blueprint('auth', __name__)
@@ -34,19 +34,11 @@ def aws_cognito_redirect():
 @auth.route('/account')
 @login_required
 def account():
-    authorize_url = ''
-    # if session.get('trello_token') is None:
-    #     params = {
-    #         'expiration': 'never',
-    #         'name': current_app.config['TRELLO_APP_NAME'],
-    #         'scope': current_app.config['TRELLO_AUTH_SCOPE'],
-    #         'response_type': 'token',
-    #         'key': current_app.config['TRELLO_API_KEY'],
-    #         'return_url': url_for('token', _external=True)
-    #     }
-    #     authorize_url = 'https://trello.com/1/authorize?' + urlencode(params)
-
-    return render_template('account.html', authorize_url=authorize_url, token=session.get('trello_token'))
+    return_url = url_for('trello.token', _external=True)
+    authorize_url = trello_api_instance.get_authorize_url(return_url)
+    token = '**********' if session.get('trello_token') else None
+    
+    return render_template('account.html', authorize_url=authorize_url, token=token)
 
 @auth.route("/logout")
 @login_required

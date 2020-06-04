@@ -20,8 +20,6 @@ def token_post():
     return jsonify({'redirect':url_for('auth.account', _external=True)})
 
 
-
-
 @trello.route('/revoke', methods=['POST'])
 @login_required
 def revoke():
@@ -35,9 +33,11 @@ def timeline():
     if not token :
         return redirect(url_for('auth.account'))
     
-    model = None
+    model = {}
     try:
-        model = trello_api_instance.get_events(token)[:10]
+        model['boards'] = trello_api_instance.get_boards(token)
+        model['events'] = trello_api_instance.get_events(token)[:10]
+        
     except UnauthorizedException:
         flash(f'Authorisation error from Trello, please check your account settings, you might need to authorise it again', category='danger')
     except:

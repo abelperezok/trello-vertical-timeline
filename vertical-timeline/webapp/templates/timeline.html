@@ -15,23 +15,89 @@
 {% if model %}
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-4">
+        <div class="accordion" id="timelineFacets">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne">
+                            Boards to include
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#timelineFacets">
+                    <div class="card-body">
+                        <ul class="form-group">
+                            {% for item in model.boards %}
+                            <li class="form-group-item m-2">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" type="checkbox" value="">
+                                    {{ item.name }}
+                                </label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Lists from the boards
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#timelineFacets">
+                    <div class="card-body">
+                        <ul class="form-group">
+                            <li class="form-group-item m-2">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" type="checkbox" value="">
+                                    list 1
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Labels from the boards
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#timelineFacets">
+                    <div class="card-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-8">
         <div class="main-timeline8">
-            
-            {% for item in model %}
+
+            {% for item in model.events %}
             <div class="timeline">
                 <span class="timeline-icon"></span>
                 <span class="year">{{ item.due_formatted }}</span>
                 <div class="timeline-content">
                     <h3 class="title">{{ item.name }}</h3>
                     <p class="description">
-                        {{ item.desc }} 
+                        {{ item.desc }}
                     </p>
                     <a href="{{ item.url }}" class="btn p-0">Read more</a>
                 </div>
             </div>
             {% endfor %}
-            
+
         </div>
     </div>
 </div>

@@ -28,11 +28,14 @@ Resources:
           Properties:
             ApiId: !Ref PublicApi
             PayloadFormatVersion: "1.0"
+    Metadata:
+      BuildMethod: makefile
 
   PublicApi:
     Type: AWS::Serverless::HttpApi
     Properties:
       CorsConfiguration: True
+
       # StageName: !Ref StageName
       # Tags:
       #   Tag: Value
@@ -41,8 +44,31 @@ Resources:
       #   Format: $context.requestId
 
 
+  S3Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref PublicApi
+      Description: S3 Integration for static files
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Sub ${StaticFilesBucket.WebsiteURL}/{proxy}
+      IntegrationMethod: GET
+      PayloadFormatVersion: 1.0
+
+  StaticRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref PublicApi
+      RouteKey: GET /static/{proxy+}
+      Target: !Sub integrations/${S3Integration}
 
 
+  # S3 bucket
+  StaticFilesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
 
 
 # User pool - simple configuration 
@@ -115,9 +141,12 @@ Resources:
 
 
 Outputs:
-  HelloWorldApi:
-    Description: "API Gateway v2 endpoint URL for default stage for Hello World function"
-    Value: !Sub "https://${PublicApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/"
+  PublicApi:
+    Description: API Gateway v2 endpoint URL for default stage for WebApp function
+    Value: !Sub https://${PublicApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/
+  StaticFilesBucket:
+    Description: Static files bucket name
+    Value: !Ref StaticFilesBucket
   UserPoolClientId:
       Description: UserPoolClient ID
       Value: !Ref UserPoolClient

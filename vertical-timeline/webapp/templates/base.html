@@ -17,17 +17,15 @@
 
 <body>
 
-
-
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <nav id="nav-bar" class="navbar navbar-expand-sm navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.home') }}">LOGO</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler"
-                aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" v-bind:class="{ 'collapsed': collapsed }" type="button" data-toggle="collapse" data-target="#navbarToggler"
+                aria-controls="navbarToggler" v-bind:aria-expanded="collapsed" aria-label="Toggle navigation" v-on:click="toggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarToggler">
+            <div class="collapse navbar-collapse" v-bind:class="{ 'show': !collapsed }" id="navbarToggler">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.home') }}">Home</a>
@@ -51,10 +49,6 @@
     </nav>
 
     <div class="container">
-        
-    </div>
-
-    <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <div class="row m-3">
@@ -73,16 +67,9 @@
     </div>
 
     <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
+    <!-- VueJs for dynamic behaviours -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <script src="static/js/main.js"></script>
 
 </body>
 

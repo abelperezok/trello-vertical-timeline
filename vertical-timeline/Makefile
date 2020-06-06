@@ -1,4 +1,4 @@
-STACK_NAME = hello-sam-flask
+STACK_NAME = trello-vertical-timeline
 
 build-WebAppFunction:
 	rsync -av --exclude=*__pycache__ --exclude=Makefile --exclude=static . $(ARTIFACTS_DIR)

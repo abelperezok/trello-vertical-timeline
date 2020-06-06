@@ -7,13 +7,13 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 10
+    Timeout: 30
 
 Parameters:
   PoolDomainName:
     Type: String
     Description: Domain name for Cognito Hosted UI
-    Default: auth-flask-test
+    Default: vertical-timeline
 
 Resources:
   WebAppFunction:
@@ -114,10 +114,10 @@ Resources:
         - openid
         - aws.cognito.signin.user.admin
         - profile
-      ClientName: FlaskAppClient
+      ClientName: VerticalTimelineClient
       CallbackURLs:
         - http://localhost:5000/aws_cognito_redirect
-        - https://w467k2ss1h.execute-api.eu-west-1.amazonaws.com/aws_cognito_redirect
+        - https://5ylnqp07jl.execute-api.eu-west-2.amazonaws.com/aws_cognito_redirect
       # LogoutURLs: 
       #   - !Sub "https://${WebSubdomainName}.${DomainName}"
       # ExplicitAuthFlows: 

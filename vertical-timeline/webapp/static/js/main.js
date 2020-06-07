@@ -11,3 +11,23 @@ new Vue({
         }
     }
 });
+
+new Vue({
+    el: '#timelineFacets',
+    data: {
+        collapsed1: false,
+        collapsed2: true,
+        collapsed3: true
+    },
+    methods: {
+        toggle1() {
+            this.collapsed1 = !this.collapsed1;
+        },
+        toggle2() {
+            this.collapsed2 = !this.collapsed2;
+        },
+        toggle3() {
+            this.collapsed3 = !this.collapsed3;
+        }
+    }
+});

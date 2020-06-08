@@ -6,28 +6,28 @@
 
 {% block body %}
 
-<div class="row m-3">
+<div class="row m-5">
     <div class="col-md-12">
         <h3 class="text-center">Account page</h3>
     </div>
 </div>
 
-<div class="row">
+<div class="row m-5">
     <div class="col-md-12">
 
-            <form method="POST" action="{{ url_for('trello.revoke') }}">
+        <form method="POST" action="{{ url_for('trello.revoke') }}">
             <div class="form-row align-items-center">
                 <div class="col-auto">
                     <label for="exampleInputEmail1">Trello Authorisation Token</label>
                 </div>
                 <div class="col-auto">
-                    <input type="text" class="form-control" id="exampleInputEmail1" value="{{ token }}" readonly>
+                    <input type="text" class="form-control" id="exampleInputEmail1" value="{{ model.token }}" readonly>
                 </div>
                 <div class="col-auto">
-                    {% if token %}
+                    {% if model.token %}
                     <button type="submit" value="revoke" class="btn btn-outline-primary my-2 my-sm-0">Trello Revoke</button>
                     {% else %}
-                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ authorize_url }}">Trello Authorise</a>
+                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ model.authorize_url }}">Trello Authorise</a>
                     {% endif%}
                 </div>
             </div>
@@ -35,5 +35,29 @@
 
     </div>
 </div>
+
+{% if model.token %}
+<div class="row m-5">
+    <div id="populate-trello-data" class="col-md-12">
+        <h4 class="">Select the boards to collect data</h3>
+        <form method="POST" action="{{ url_for('trello.populate') }}">
+            <div class="form-group">
+                {% for item in model.boards %}
+                <div class="form-check p-2">
+                    <input ref="chk_board" class="form-check-input" type="checkbox" value="" id="{{ item.id}}">
+                    <label class="form-check-label" for="{{ item.id}}">
+                        {{ item.name }}
+                    </label>
+                  </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <button type="button" value="populate" @click="submit" class="btn btn-outline-primary my-2 my-sm-0">Populate</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endif%}
 
 {% endblock %}

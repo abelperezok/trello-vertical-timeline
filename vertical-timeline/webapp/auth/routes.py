@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, session, url_for, redirect, current_app
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from webapp import aws_auth
-from webapp import trello_api_instance
 from webapp.models import User
+
 
 auth = Blueprint('auth', __name__)
 
@@ -28,17 +28,8 @@ def aws_cognito_redirect():
     user = User(claims['username'])
     login_user(user)
 
-    return redirect(url_for('auth.account'))
+    return redirect(url_for('trello.account'))
 
-
-@auth.route('/account')
-@login_required
-def account():
-    return_url = url_for('trello.token', _external=True)
-    authorize_url = trello_api_instance.get_authorize_url(return_url)
-    token = '**********' if session.get('trello_token') else None
-    
-    return render_template('account.html', authorize_url=authorize_url, token=token)
 
 @auth.route("/logout")
 @login_required

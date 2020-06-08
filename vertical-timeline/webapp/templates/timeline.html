@@ -33,7 +33,7 @@
                             {% for item in model.boards %}
                             <li class="form-group-item m-2">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" type="checkbox" value="">
+                                    <input class="form-check-input" type="checkbox" value="{{ item.id}}">
                                     {{ item.name }}
                                 </label>
                             </li>

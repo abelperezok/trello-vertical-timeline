@@ -31,3 +31,17 @@ new Vue({
         }
     }
 });
+
+new Vue({
+    el: '#populate-trello-data',
+    data: {
+        collapsed1: false,
+        collapsed2: true,
+        collapsed3: true
+    },
+    methods: {
+        submit() {
+            console.log(this.$refs.chk_board)
+        }
+    }
+});

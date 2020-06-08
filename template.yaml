@@ -22,6 +22,12 @@ Resources:
       CodeUri: vertical-timeline/
       Handler: webapp.lambda.app
       Runtime: python3.8
+      Environment: 
+        Variables:
+          TABLE_NAME: !Ref DynamoDbTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDbTable
       Events:
         AllRequests:
           Type: HttpApi
@@ -138,12 +144,47 @@ Resources:
       Domain: !Ref PoolDomainName
       UserPoolId: !Ref UserPool
 
+  # DynamoDb table
+  DynamoDbTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      KeySchema: 
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema: 
+            - AttributeName: GSI1
+              KeyType: HASH
+            - AttributeName: SK
+              KeyType: RANGE
+          Projection: 
+            ProjectionType: ALL
+          ProvisionedThroughput: 
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+
 
 
 Outputs:
   PublicApi:
     Description: API Gateway v2 endpoint URL for default stage for WebApp function
     Value: !Sub https://${PublicApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/
+  DynamoDbTable:
+    Description: DynamoDB table name
+    Value: !Ref DynamoDbTable
   StaticFilesBucket:
     Description: Static files bucket name
     Value: !Ref StaticFilesBucket

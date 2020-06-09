@@ -44,7 +44,13 @@ new Vue({
             },
             lists: {
                 collapsed: true,
-                name: 'Lists from the boards',
+                name: 'Lists from included boards',
+                filters: [],
+                selectedFilters: []
+            },
+            labels: {
+                collapsed: true,
+                name: 'Labels from included boards',
                 filters: [],
                 selectedFilters: []
             }
@@ -54,43 +60,59 @@ new Vue({
         this.fetchBoards();
     },
     methods: {
-        dispatchEvent(type, filterId, selectedFilters){
+        dispatchEvent(type, filterId, selectedFilters) {
             switch (type) {
                 case 'boards':
                     this.fetchLists(selectedFilters)
+                    this.fetchLabels(selectedFilters)
                     break;
                 case 'lists':
                     console.log(filterId, selectedFilters)
-                    break;            
+                    break;
+                case 'labels':
+                    console.log(filterId, selectedFilters)
+                    break;
                 default:
                     break;
             }
         },
         fetchBoards() {
-            
+
             fetch('/trello/boards')
-            .then(response => response.json())
-            .then(data => {
-                this.groups.boards.filters = data;
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    this.groups.boards.filters = data;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
         },
         fetchLists(selectedBoards) {
 
-            fetch('/trello/lists?boards='+selectedBoards.join(','))
-            .then(response => response.json())
-            .then(data => {
-                this.groups.lists.filters = data;
-                this.groups.lists.collapsed = false;
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+            fetch('/trello/lists?boards=' + selectedBoards.join(','))
+                .then(response => response.json())
+                .then(data => {
+                    this.groups.lists.filters = data;
+                    this.groups.lists.collapsed = false;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        },
+        fetchLabels(selectedBoards) {
+
+            fetch('/trello/labels?boards=' + selectedBoards.join(','))
+                .then(response => response.json())
+                .then(data => {
+                    this.groups.labels.filters = data;
+                    this.groups.labels.collapsed = false;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
         },
         toggle(group) {
-             group.collapsed = !group.collapsed;
+            group.collapsed = !group.collapsed;
         }
     }
 });

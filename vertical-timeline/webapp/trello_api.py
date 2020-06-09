@@ -15,6 +15,7 @@ class TrelloApi:
     trello_api_url_lists_template = trello_api_url_base + '/boards/{0}/lists?fields=name&key={1}&token={2}'
     trello_api_url_list_cards_template = trello_api_url_base + '/lists/{0}/cards?fields=name,url,due,dueComplete&key={1}&token={2}'
     trello_api_url_board_cards_template = trello_api_url_base + '/boards/{0}/cards?fields=name,url,due,dueComplete,labels,desc,idBoard&key={1}&token={2}'
+    trello_api_url_board_labels_template = trello_api_url_base + '/boards/{0}/labels?key={1}&token={2}'
 
 
     def __init__(self):
@@ -68,7 +69,11 @@ class TrelloApi:
         data = self._issue_get_request(url)
         return list(map(lambda x: dict({'id': x['id'], 'name': x['name'] }), data))
 
-
+    def get_labels(self, token, board_id):
+        api_key = current_app.config['TRELLO_API_KEY']
+        url = TrelloApi.trello_api_url_board_labels_template.format(board_id, api_key, token)
+        data = self._issue_get_request(url)
+        return list(map(lambda x: dict({'id': x['id'], 'name': x['name'], 'color': x['color'] }), data))
 
 
     # this is the important method

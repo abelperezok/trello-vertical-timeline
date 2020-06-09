@@ -161,4 +161,20 @@ class BoardList(DataRepository):
     def get_lists(self, user_id, board_id):
         data = self._query_items(user_id, f'USER_BOARD#{board_id}#{self.sk_prefix}')
         return list(map(lambda x: dict({'id': x['id'], 'name': x['name'] }), data))
-        
+
+
+class BoardLabel(DataRepository):
+    def __init__(self):
+        super().__init__(os.environ['TABLE_NAME'])
+        self.pk_prefix = 'USER'
+        self.sk_prefix = 'LABEL'
+
+    def add_labels(self, user_id, board_id, labels):
+        return self._batch_add_items(user_id, f'USER_BOARD#{board_id}#', labels)
+
+    def remove_labels(self, user_id, board_id, labels):
+        return self._batch_remove_items(user_id, f'USER_BOARD#{board_id}#', labels)
+    
+    def get_labels(self, user_id, board_id):
+        data = self._query_items(user_id, f'USER_BOARD#{board_id}#{self.sk_prefix}')
+        return list(map(lambda x: dict({'id': x['id'], 'name': x['name'], 'color': x['color'] }), data))

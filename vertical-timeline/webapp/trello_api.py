@@ -65,7 +65,6 @@ class TrelloApi:
     def get_lists(self, token, board_id):
         api_key = current_app.config['TRELLO_API_KEY']
         url = TrelloApi.trello_api_url_lists_template.format(board_id, api_key, token)
-        print(url)
         data = self._issue_get_request(url)
         return list(map(lambda x: dict({'id': x['id'], 'name': x['name'] }), data))
 

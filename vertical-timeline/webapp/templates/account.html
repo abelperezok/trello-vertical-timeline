@@ -38,24 +38,20 @@
 
 {% if model.token %}
 <div class="row m-5">
-    <div id="populate-trello-data" class="col-md-12">
-        <h4 class="">Select the boards to collect data</h3>
+    <div class="col-md-12">
+        <h4 class="">Populate Trello Data</h3>
         <form method="POST" action="{{ url_for('trello.populate') }}">
             <div class="form-group">
-                {% for item in model.boards %}
-                <div class="form-check p-2">
-                    <input ref="chk_board" class="form-check-input" type="checkbox" value="" id="{{ item.id}}">
-                    <label class="form-check-label" for="{{ item.id}}">
-                        {{ item.name }}
-                    </label>
-                  </div>
-                {% endfor %}
-            </div>
-            <div class="form-group">
-                <button type="button" value="populate" @click="submit" class="btn btn-outline-primary my-2 my-sm-0">Populate</button>
+                <button type="submit" value="populate" @click="submit" class="btn btn-outline-primary my-2 my-sm-0">Populate</button>
             </div>
         </form>
-
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <p>
+            {{ model.boards|length }} boards Updated on {{ model.last_updated.date() }} at {{ model.last_updated.time().strftime("%H:%M:%S") }}
+        </p>
     </div>
 </div>
 {% endif%}

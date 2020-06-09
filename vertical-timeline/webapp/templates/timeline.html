@@ -12,7 +12,42 @@
     </div>
 </div>
 
-{% if model %}
+<div class="row">
+    <div class="col-4">
+        <div class="accordion" id="timelineFacets-2">
+            <div v-for="(group, groupKey) in groups" class="card">
+
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne" v-on:click="toggle(group)">
+                            {% raw %}{{ group.name }}{% endraw %}
+                        </button>
+                    </h5>
+                </div>
+
+                <div id="collapseOne" v-bind:class="{ 'show': !group.collapsed }" class="collapse"
+                    aria-labelledby="headingOne" data-parent="#timelineFacets">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <div v-for="filter in group.filters" class="form-group-item m-2">
+                                <label class="form-check-label ml-3" role="button">
+                                    <input class="form-check-input" type="checkbox" v-bind:value="filter.id" 
+                                        @change="dispatchEvent(groupKey, filter.id, group.selectedFilters)" v-model="group.selectedFilters" />
+                                    {% raw %}{{ filter.name }}{% endraw %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% if false %}
 
 <div class="row">
     <div class="col-4">
@@ -27,7 +62,8 @@
                     </h5>
                 </div>
 
-                <div id="collapseOne" v-bind:class="{ 'show': !collapsed1 }" class="collapse" aria-labelledby="headingOne" data-parent="#timelineFacets">
+                <div id="collapseOne" v-bind:class="{ 'show': !collapsed1 }" class="collapse"
+                    aria-labelledby="headingOne" data-parent="#timelineFacets">
                     <div class="card-body">
                         <ul class="form-group">
                             {% for item in model.boards %}
@@ -45,13 +81,15 @@
             <div class="card">
                 <div class="card-header" id="headingTwo">
                     <h5 class="mb-0">
-                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" 
-                            aria-expanded="false" aria-controls="collapseTwo" v-on:click="toggle2">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"
+                            v-on:click="toggle2">
                             Lists from the boards
                         </button>
                     </h5>
                 </div>
-                <div id="collapseTwo" v-bind:class="{ 'show': !collapsed2 }" class="collapse" aria-labelledby="headingTwo" data-parent="#timelineFacets">
+                <div id="collapseTwo" v-bind:class="{ 'show': !collapsed2 }" class="collapse"
+                    aria-labelledby="headingTwo" data-parent="#timelineFacets">
                     <div class="card-body">
                         <ul class="form-group">
                             <li class="form-group-item m-2">
@@ -67,13 +105,15 @@
             <div class="card">
                 <div class="card-header" id="headingThree">
                     <h5 class="mb-0">
-                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" 
-                            aria-expanded="false" aria-controls="collapseThree" v-on:click="toggle3">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"
+                            v-on:click="toggle3">
                             Labels from the boards
                         </button>
                     </h5>
                 </div>
-                <div id="collapseThree" v-bind:class="{ 'show': !collapsed3 }" class="collapse" aria-labelledby="headingThree" data-parent="#timelineFacets">
+                <div id="collapseThree" v-bind:class="{ 'show': !collapsed3 }" class="collapse"
+                    aria-labelledby="headingThree" data-parent="#timelineFacets">
                     <div class="card-body">
 
                     </div>

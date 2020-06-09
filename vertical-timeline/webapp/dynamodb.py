@@ -31,10 +31,10 @@ class DataRepository:
             }
         }
 
-    def _get_key_data(self, pk, sk):
+    def _get_key_data(self, pk, sk, sk_prefix=''):
         return {
             'PK': f'{self.pk_prefix}#{pk}',
-            'SK': f'{self.sk_prefix}#{sk}'
+            'SK': f'{sk_prefix}{self.sk_prefix}#{sk}'
         }
 
 
@@ -43,7 +43,7 @@ class DataRepository:
         try:
             response = self.table.query(
                 KeyConditionExpression=
-                    Key('PK').eq(f'{self.pk_prefix}#{pk}') & Key('SK').begins_with(self.sk_prefix)
+                    Key('PK').eq(f'{self.pk_prefix}#{pk}') & Key('SK').begins_with(sk_prefix)
             )
         except ClientError as e:
             print(e.response['Error']['Message'])
@@ -84,10 +84,10 @@ class DataRepository:
             return response
 
 
-    def _batch_add_items(self, pk, items):
+    def _batch_add_items(self, pk, sk_prefix, items):
         if len(items) == 0:
             return
-        key_items = map(lambda x: dict({**x, **self._get_key_data(pk, x['id'])}), items)
+        key_items = map(lambda x: dict({**x, **self._get_key_data(pk, x['id'], sk_prefix)}), items)
         db_items = list(map(self._put_request_item, key_items))
         response = self.client.batch_write_item(
             RequestItems={
@@ -96,10 +96,10 @@ class DataRepository:
         )
         return response
 
-    def _batch_remove_items(self, pk, items):
+    def _batch_remove_items(self, pk, sk_prefix, items):
         if len(items) == 0:
             return
-        key_items = map(lambda x: self._get_key_data(pk, x['id']), items)
+        key_items = map(lambda x: self._get_key_data(pk, x['id'], sk_prefix), items)
         db_items = list(map(self._delete_request_item, key_items))
         response = self.client.batch_write_item(
             RequestItems={
@@ -120,6 +120,11 @@ class UserData(DataRepository):
     def add_user_token(self, user_id, trello_token):
         return self._put_item(user_id, {'trello_token': trello_token})
 
+    def update_timestamp(self, user_id, timestamp):
+        item = self._get_item(user_id)
+        item['timestamp'] = timestamp
+        return self._put_item(user_id, item)
+
     def remove_user_token(self, user_id):
         return self._delete_item(user_id)
 
@@ -131,10 +136,10 @@ class UserBoard(DataRepository):
         self.sk_prefix = 'BOARD'
 
     def add_boards(self, user_id, boards):
-        return self._batch_add_items(user_id, boards)
+        return self._batch_add_items(user_id, '', boards)
 
     def remove_boards(self, user_id, boards):
-        return self._batch_remove_items(user_id, boards)
+        return self._batch_remove_items(user_id, '', boards)
 
     def get_boards(self, user_id):
         data = self._query_items(user_id, self.sk_prefix)
@@ -147,8 +152,13 @@ class BoardList(DataRepository):
         self.pk_prefix = 'USER'
         self.sk_prefix = 'LIST'
 
-    def add_lists(self, user_id, lists):
-        return self._batch_add_items(user_id, lists)
+    def add_lists(self, user_id, board_id, lists):
+        return self._batch_add_items(user_id, f'USER_BOARD#{board_id}#', lists)
 
-    def remove_lists(self, user_id, lists):
-        return self._batch_remove_items(user_id, lists)        
+    def remove_lists(self, user_id, board_id, lists):
+        return self._batch_remove_items(user_id, f'USER_BOARD#{board_id}#', lists)
+    
+    def get_lists(self, user_id, board_id):
+        data = self._query_items(user_id, f'USER_BOARD#{board_id}#{self.sk_prefix}')
+        return list(map(lambda x: dict({'id': x['id'], 'name': x['name'] }), data))
+        

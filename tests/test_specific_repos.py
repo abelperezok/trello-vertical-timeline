@@ -118,7 +118,7 @@ class TestSpecificRepository:
             items_to_create = []
             board_id = f'B{i}'
             for j in range(10):            
-                item = {'id': f'L{j}', 'name': f'Label {j}'}
+                item = {'id': f'L{j}', 'name': f'Label {j}', 'color': 'green'}
                 items_to_create.append(item)
             repo.add_labels(user_id, board_id, items_to_create)
         
@@ -138,6 +138,7 @@ class TestSpecificRepository:
                 assert item is not None
                 assert item['id'] == f'L{j}'
                 assert item['name'] == f'Label {j}' 
+                assert item['color'] == f'green' 
 
         for i in range(3):
             repo.delete_labels(user_id, f'B{i}', board_labels[i])

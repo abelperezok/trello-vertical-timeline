@@ -33,5 +33,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: >
-        AWS_ACCESS_KEY_ID=abc AWS_SECRET_ACCESS_KEY=xyz 
+        AWS_DEFAULT_REGION=us-east-1
         pytest tests

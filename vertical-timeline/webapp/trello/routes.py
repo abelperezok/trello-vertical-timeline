@@ -6,24 +6,24 @@ from flask import (Blueprint, flash, jsonify, redirect, render_template,
 from flask_login import current_user, login_required
 
 from webapp import trello_api_instance
-from webapp.dynamodb import UserData, BoardList, UserBoard, BoardLabel
 from webapp.exceptions import GenericException, UnauthorizedException
+from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository
 
 trello = Blueprint('trello', __name__)
-user_data = UserData()
-user_board = UserBoard()
-board_list = BoardList()
-board_label = BoardLabel()
+user_repo = UserDataRepository(os.environ['TABLE_NAME'])
+board_repo = UserBoardRepository(os.environ['TABLE_NAME'])
+list_repo = BoardListRepository(os.environ['TABLE_NAME'])
+label_repo = BoardLabelRepository(os.environ['TABLE_NAME'])
 
 @trello.route('/account')
 @login_required
 def account():
     return_url = url_for('trello.token', _external=True)
     model = {}
-    user_record = user_data.get_user_token(current_user.get_id())
+    user_record = user_repo.get_user_data(current_user.get_id())
     model['authorize_url'] = trello_api_instance.get_authorize_url(return_url)
     model['token'] = '**********' if user_record else None
-    model['boards'] = user_board.get_boards(current_user.get_id())
+    model['boards'] = board_repo.get_boards(current_user.get_id())
     model['last_updated'] = datetime.fromisoformat(user_record.get('timestamp')) if user_record else None
     
     return render_template('account.html', model=model)
@@ -39,7 +39,7 @@ def token():
 @login_required
 def token_post():
     trello_token = request.json['token']  # request.form['token']
-    user_data.add_user_token(current_user.get_id(), trello_token)
+    user_repo.update_user_token(current_user.get_id(), trello_token)
     populate_data()
     return jsonify({'redirect': url_for('trello.account', _external=True)})
 
@@ -47,7 +47,7 @@ def token_post():
 @trello.route('/revoke', methods=['POST'])
 @login_required
 def revoke():
-    user_data.remove_user_token(current_user.get_id())
+    user_repo.delete_user_data(current_user.get_id())
     wipe_data()
     return redirect(url_for('trello.account'))
 
@@ -55,7 +55,7 @@ def revoke():
 @trello.route('/trello/boards')
 @login_required
 def trello_boards():
-    boards = user_board.get_boards(current_user.get_id())
+    boards = board_repo.get_boards(current_user.get_id())
     return jsonify(boards)
 
 @trello.route('/trello/lists')
@@ -64,7 +64,7 @@ def trello_lists():
     boards = request.args['boards'].split(',')
     result = []
     for board in boards:
-        board_lists = board_list.get_lists(current_user.get_id(), board)
+        board_lists = list_repo.get_lists(current_user.get_id(), board)
         result.extend(board_lists)
     return jsonify(result)
 
@@ -75,7 +75,7 @@ def trello_labels():
     boards = request.args['boards'].split(',')
     result = []
     for board in boards:
-        board_lists = board_label.get_labels(current_user.get_id(), board)
+        board_lists = label_repo.get_labels(current_user.get_id(), board)
         board_lists_mapped = map(lambda x: dict({'id': x['id'], 'name': f"{x['name']} ({x['color']})" }), board_lists)
         result.extend(board_lists_mapped)
     return jsonify(result)
@@ -93,36 +93,39 @@ def trello_labels():
 
 def wipe_data():
     # get the stored boards
-    boards = user_board.get_boards(current_user.get_id())
+    boards = board_repo.get_boards(current_user.get_id())
     for board in boards:
         # get the lists for each board
-        board_lists = board_list.get_lists(current_user.get_id(), board['id'])
+        board_lists = list_repo.get_lists(current_user.get_id(), board['id'])
         # remove the lists from each board
-        board_list.remove_lists(current_user.get_id(), board['id'], board_lists)
+        list_repo.delete_lists(current_user.get_id(), board['id'], board_lists)
         # get the labels for each board
-        board_labels = board_label.get_labels(current_user.get_id(), board['id'])
+        board_labels = label_repo.get_labels(current_user.get_id(), board['id'])
         # remove the labels from each board
-        board_label.remove_labels(current_user.get_id(), board['id'], board_labels)
+        label_repo.delete_labels(current_user.get_id(), board['id'], board_labels)
 
     # remove the boards
-    user_board.remove_boards(current_user.get_id(), boards)
+    board_repo.delete_boards(current_user.get_id(), boards)
 
 def populate_data():
-    trello_token = user_data.get_user_token(current_user.get_id()).get('trello_token')
+    user_record = user_repo.get_user_data(current_user.get_id())
+    if not user_repo:
+        return
+    trello_token = user_record.get('trello_token')
     # get the fresh boards
     boards = trello_api_instance.get_boards(trello_token)
-    user_board.add_boards(current_user.get_id(), boards)
+    board_repo.add_boards(current_user.get_id(), boards)
     for board in boards:
         # get the fresh lists
         board_lists = trello_api_instance.get_lists(trello_token, board['id'])
         # add the fresh lists
-        board_list.add_lists(current_user.get_id(), board['id'], board_lists)
+        list_repo.add_lists(current_user.get_id(), board['id'], board_lists)
         # get the fresh labels
         board_labels = trello_api_instance.get_labels(trello_token, board['id'])
         # add the fresh labels
-        board_label.add_labels(current_user.get_id(), board['id'], board_labels)
+        label_repo.add_labels(current_user.get_id(), board['id'], board_labels)
 
-    user_data.update_timestamp(current_user.get_id(), datetime.utcnow().isoformat())    
+    user_repo.update_timestamp(current_user.get_id(), datetime.utcnow().isoformat())
 
 
 
@@ -141,7 +144,7 @@ def populate():
 @trello.route('/timeline')
 @login_required
 def timeline():
-    user_record = user_data.get_user_token(current_user.get_id())
+    user_record = user_repo.get_user_data(current_user.get_id())
     if not user_record:
         return redirect(url_for('trello.account'))
 
@@ -151,7 +154,7 @@ def timeline():
 
     model = {}
     try:
-        model['boards'] = user_board.get_boards(current_user.get_id())
+        model['boards'] = board_repo.get_boards(current_user.get_id())
         model['events'] = [] # trello_api_instance.get_events(token)[:10]
 
     except UnauthorizedException:

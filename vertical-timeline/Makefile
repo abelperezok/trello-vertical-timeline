@@ -13,4 +13,6 @@ cdn:bucket = $(shell aws cloudformation describe-stacks --stack-name $(STACK_NAM
 cdn:
 	aws s3 sync webapp/static/ s3://$(bucket)/ --delete --acl=public-read
 
-
+.PHONY: freeze
+freeze:
+	pip freeze | grep -v "pkg-resources" > requirements.txt

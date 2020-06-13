@@ -212,7 +212,72 @@ class DependentEntityRepository(RepositoryBase):
 
 
 
+class AssociativeEntityRepository(RepositoryBase):
+    def __init__(self, table_name, endpoint_url=None):
+        super().__init__(table_name, endpoint_url=endpoint_url)
 
+    def _get_relation_key(self, parent1_key, parent2_key):
+        return parent1_key + parent2_key
+
+    def add_item(self, parent1_key, parent2_key, item):
+        relation_key = self._get_relation_key(parent1_key, parent2_key)
+        pk = self._pk_value(parent1_key)
+        sk = self._sk_value(relation_key)
+        item['GSI1'] = self._gsi1_value(parent2_key)
+        return self._put_item(pk, sk, item)
+
+    def delete_item(self, parent1_key, parent2_key):
+        relation_key = self._get_relation_key(parent1_key, parent2_key)
+        pk = self._pk_value(parent1_key)
+        sk = self._sk_value(relation_key)
+        return self._delete_item(pk, sk)
+
+    def table_query_by_parent_id(self, parent_key, sk_prefix=None):
+        pk = self._pk_value(parent_key)
+        return self._table_query(pk, sk_prefix or self.sk_prefix)
+
+    def gsi1_query_by_parent_id(self, parent_key):
+        gsi1 = self._gsi1_value(parent_key)
+        return self._gsi1_query(gsi1, self.sk_prefix)
+
+    def batch_add_items(self, parent_key, items):
+        pk = self._pk_value(parent_key)
+        db_items = []
+        for key,item in items:
+            relation_key = self._get_relation_key(parent_key, key)
+            sk = self._sk_value(relation_key)
+            key_data = self._get_key_data(pk, sk)
+            db_item = { **key_data, **item }
+            db_item['GSI1'] = self._gsi1_value(key)
+            db_items.append(db_item)
+        return self._batch_add_items(db_items)
+
+    def batch_delete_items(self, parent_key, keys):
+        pk = self._pk_value(parent_key)
+        db_items = []
+        for key in keys:
+            relation_key = self._get_relation_key(parent_key, key)
+            sk = self._sk_value(relation_key)
+            key_data = self._get_key_data(pk, sk)
+            db_items.append(key_data)        
+        return self._batch_delete_items(db_items)
+
+    #    public async Task BatchDeleteItemsAsync(TKey parentKey, IEnumerable<TKey> items)
+    #     {
+    #         var pk = PKValue(parentKey);
+    #         var dbItems = new List<DynamoDBItem>();
+    #         foreach (var item in items)
+    #         {
+    #             var relationKey = GetRelationKey(parentKey, item);
+    #             var dbItem = new DynamoDBItem();
+    #             dbItem.AddPK(pk);
+    #             dbItem.AddSK(SKValue(relationKey));
+
+    #             dbItems.Add(dbItem);
+    #         }
+
+    #         await _dynamoDbClient.BatchDeleteItemsAsync(dbItems);
+    #     }
 
 
 

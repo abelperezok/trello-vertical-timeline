@@ -2,6 +2,33 @@ import boto3
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 
+def buffered(size):
+    def wrap(f):
+        def wrapped(self, arg1=None, arg2=None):
+            parent_key = ''
+            items = []
+
+            if (f.__code__.co_argcount == 3):
+                parent_key = arg1
+                items = arg2
+            else:
+                items = arg1
+
+            count = len(items)
+            start = 0
+            while count > 0:
+                buffer = items[start : start + size]
+                if (f.__code__.co_argcount == 3):
+                    f(self, parent_key, buffer)
+                else:
+                    f(self, buffer)
+                count = count - len(buffer)
+                start = start + len(buffer)
+        return wrapped
+    return wrap
+
+
+
 class RepositoryBase:
     def __init__(self, table_name, endpoint_url):
         resource = boto3.resource('dynamodb', endpoint_url=endpoint_url)
@@ -145,7 +172,7 @@ class IndependentEntityRepository(RepositoryBase):
     def gsi1_query_all(self):
         return self._gsi1_query(self.pk_prefix, self.sk_prefix)
 
-
+    @buffered(25)
     def batch_add_items(self, items):
         db_items = []
         for key,item in items:
@@ -157,6 +184,7 @@ class IndependentEntityRepository(RepositoryBase):
             db_items.append(db_item)
         return self._batch_add_items(db_items)
 
+    @buffered(25)
     def batch_delete_items(self, keys):
         db_items = []
         for key in keys:
@@ -191,6 +219,7 @@ class DependentEntityRepository(RepositoryBase):
         sk = self._sk_value(entity_key)
         return self._delete_item(pk, sk)
 
+    @buffered(25)
     def batch_add_items(self, parent_key, items):
         pk = self._pk_value(parent_key)
         db_items = []
@@ -199,8 +228,9 @@ class DependentEntityRepository(RepositoryBase):
             key_data = self._get_key_data(pk, sk)
             db_item = { **key_data, **item }
             db_items.append(db_item)
-        return self._batch_add_items(db_items)
+        result = self._batch_add_items(db_items)
 
+    @buffered(25)
     def batch_delete_items(self, parent_key, keys):
         pk = self._pk_value(parent_key)
         db_items = []
@@ -240,6 +270,7 @@ class AssociativeEntityRepository(RepositoryBase):
         gsi1 = self._gsi1_value(parent_key)
         return self._gsi1_query(gsi1, self.sk_prefix)
 
+    @buffered(25)
     def batch_add_items(self, parent_key, items):
         pk = self._pk_value(parent_key)
         db_items = []
@@ -252,6 +283,7 @@ class AssociativeEntityRepository(RepositoryBase):
             db_items.append(db_item)
         return self._batch_add_items(db_items)
 
+    @buffered(25)
     def batch_delete_items(self, parent_key, keys):
         pk = self._pk_value(parent_key)
         db_items = []
@@ -262,22 +294,6 @@ class AssociativeEntityRepository(RepositoryBase):
             db_items.append(key_data)        
         return self._batch_delete_items(db_items)
 
-    #    public async Task BatchDeleteItemsAsync(TKey parentKey, IEnumerable<TKey> items)
-    #     {
-    #         var pk = PKValue(parentKey);
-    #         var dbItems = new List<DynamoDBItem>();
-    #         foreach (var item in items)
-    #         {
-    #             var relationKey = GetRelationKey(parentKey, item);
-    #             var dbItem = new DynamoDBItem();
-    #             dbItem.AddPK(pk);
-    #             dbItem.AddSK(SKValue(relationKey));
-
-    #             dbItems.Add(dbItem);
-    #         }
-
-    #         await _dynamoDbClient.BatchDeleteItemsAsync(dbItems);
-    #     }
 
 
 
@@ -382,3 +398,28 @@ class BoardLabelRepository:
         sk_prefix = f"{self.repo.sk_prefix}#{board_id}#LABEL"
         data = self.repo.table_query_by_parent_id(user_id, sk_prefix)
         return list(map(lambda x: dict({'id': x['id'], 'name': x['name'], 'color': x['color'] }), data))
+
+
+class BoardCardRepository:
+    def __init__(self, table_name, endpoint_url=None):
+        self.repo = DependentEntityRepository(table_name, endpoint_url=endpoint_url)        
+        self.repo.pk_prefix = 'USER'
+        self.repo.sk_prefix = 'CARD'
+
+    def add_cards(self, user_id, cards):
+        items_to_create = []
+        for card in cards:
+            item = (card['id'], card)
+            items_to_create.append(item)
+        return self.repo.batch_add_items(user_id, items_to_create)
+
+    def delete_cards(self, user_id, cards):
+        items_to_delete = []
+        for card in cards:
+            item = card['id']
+            items_to_delete.append(item)
+        self.repo.batch_delete_items(user_id, items_to_delete)
+
+    def get_cards(self, user_id):
+        data = self.repo.table_query_by_parent_id(user_id)
+        return list(map(lambda x: dict({'id': x['id'], 'name': x['name'] }), data))

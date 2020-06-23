@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.realpath(
     os.path.dirname(__file__)+"/../vertical-timeline/"))
-from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository
+from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
 
 from tests.conftest import table_name, local_url
 
@@ -39,7 +39,6 @@ class TestSpecificRepository:
 
         assert data is not None
         assert data['timestamp'] == '2020-06-09T16:35:50.538111'
-
 
     def test_UserBoardRepository(self, docker_dynamodb):
         repo = UserBoardRepository(table_name, local_url)
@@ -109,7 +108,6 @@ class TestSpecificRepository:
         assert len(board_lists[1]) == 0
         assert len(board_lists[2]) == 0
 
-
     def test_BoardLabelRepository(self, docker_dynamodb):
         repo = BoardLabelRepository(table_name, local_url)
         user_id = 'user-0001'
@@ -151,3 +149,31 @@ class TestSpecificRepository:
         assert len(board_labels[0]) == 0
         assert len(board_labels[1]) == 0
         assert len(board_labels[2]) == 0
+
+
+    def test_BoardCardRepository(self, docker_dynamodb):
+        repo = BoardCardRepository(table_name, local_url)
+        user_id = 'user-0001'
+
+        items_to_create = []
+        for i in range(10):
+            item = {'id': f'C{i}', 'name': f'Card {i}'}
+            items_to_create.append(item)
+
+        repo.add_cards(user_id, items_to_create)
+
+        cards = repo.get_cards(user_id)
+
+        assert len(cards) == 10
+
+        for i in range(len(cards)):
+            item = cards[i]
+            assert item is not None
+            assert item['id'] == f'C{i}'
+            assert item['name'] == f'Card {i}'
+
+        repo.delete_cards(user_id, cards)
+
+        empty_cards = repo.get_cards(user_id)
+
+        assert len(empty_cards) == 0

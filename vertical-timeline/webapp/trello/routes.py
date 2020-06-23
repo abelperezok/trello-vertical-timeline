@@ -7,13 +7,14 @@ from flask_login import current_user, login_required
 
 from webapp import trello_api_instance
 from webapp.exceptions import GenericException, UnauthorizedException
-from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository
+from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
 
 trello = Blueprint('trello', __name__)
 user_repo = UserDataRepository(os.environ['TABLE_NAME'])
 board_repo = UserBoardRepository(os.environ['TABLE_NAME'])
 list_repo = BoardListRepository(os.environ['TABLE_NAME'])
 label_repo = BoardLabelRepository(os.environ['TABLE_NAME'])
+card_repo = BoardCardRepository(os.environ['TABLE_NAME'])
 
 @trello.route('/account')
 @login_required
@@ -104,6 +105,10 @@ def wipe_data():
         # remove the labels from each board
         label_repo.delete_labels(current_user.get_id(), board['id'], board_labels)
 
+    # get all the cards for the current user
+    board_cards = card_repo.get_cards(current_user.get_id())
+    # remove all the cards for the current user
+    card_repo.delete_cards(current_user.get_id(), board_cards)
     # remove the boards
     board_repo.delete_boards(current_user.get_id(), boards)
 
@@ -124,6 +129,11 @@ def populate_data():
         board_labels = trello_api_instance.get_labels(trello_token, board['id'])
         # add the fresh labels
         label_repo.add_labels(current_user.get_id(), board['id'], board_labels)
+        # get the fresh cards
+        card_list = trello_api_instance.get_cards(trello_token, board['id'])
+        # add the fresh cards
+        card_repo.add_cards(current_user.get_id(), card_list)
+
 
     user_repo.update_timestamp(current_user.get_id(), datetime.utcnow().isoformat())
 

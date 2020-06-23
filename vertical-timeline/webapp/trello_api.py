@@ -14,8 +14,8 @@ class TrelloApi:
     trello_api_url_boards_template = trello_api_url_base + '/members/me/boards?fields=name,url,closed&key={0}&token={1}'
     trello_api_url_lists_template = trello_api_url_base + '/boards/{0}/lists?fields=name&key={1}&token={2}'
     trello_api_url_list_cards_template = trello_api_url_base + '/lists/{0}/cards?fields=name,url,due,dueComplete&key={1}&token={2}'
-    trello_api_url_board_cards_template = trello_api_url_base + '/boards/{0}/cards?fields=name,url,due,dueComplete,labels,desc,idBoard&key={1}&token={2}'
     trello_api_url_board_labels_template = trello_api_url_base + '/boards/{0}/labels?key={1}&token={2}'
+    trello_api_url_board_cards_template = trello_api_url_base + '/boards/{0}/cards?fields=name,desc,url,due,dueComplete,idLabels,idBoard,idList&key={1}&token={2}'
 
 
     def __init__(self):
@@ -30,8 +30,6 @@ class TrelloApi:
             raise UnauthorizedException()
         else:
             raise GenericException()
-
-
 
     def get_authorize_url(self, return_url):
     
@@ -74,6 +72,20 @@ class TrelloApi:
         url = TrelloApi.trello_api_url_board_labels_template.format(board_id, api_key, token)
         data = self._issue_get_request(url)
         return list(map(lambda x: dict({'id': x['id'], 'name': x['name'], 'color': x['color'] }), data))
+
+    def get_cards(self, token, board_id):
+        api_key = current_app.config['TRELLO_API_KEY']
+        url = TrelloApi.trello_api_url_board_cards_template.format(board_id, api_key, token)
+        data = self._issue_get_request(url)
+        return data
+        # return list(map(lambda x: dict({'id': x['id'], 'name': x['name'], 'color': x['color'] }), data))
+
+
+
+
+
+
+
 
 
     # this is the important method

@@ -12,33 +12,48 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row" id="timelineFacets-2">
     <div class="col-4">
-        <div class="accordion" id="timelineFacets-2">
+        <div class="accordion">
             <div v-for="(group, groupKey) in groups" class="card">
 
                 <div class="card-header" id="headingOne">
                     <h5 class="mb-0">
                         <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
-                            aria-expanded="true" aria-controls="collapseOne" v-on:click="toggle(group)">
+                            aria-expanded="true" aria-controls="collapseOne" @click="toggle(group)">
                             {% raw %}{{ group.name }}{% endraw %}
                         </button>
                     </h5>
                 </div>
 
-                <div id="collapseOne" v-bind:class="{ 'show': !group.collapsed }" class="collapse"
+                <div id="collapseOne" :class="{ 'show': !group.collapsed }" class="collapse"
                     aria-labelledby="headingOne" data-parent="#timelineFacets">
                     <div class="card-body">
                         <div class="form-group">
                             <div v-for="filter in group.filters" class="form-group-item m-2">
                                 <label class="form-check-label ml-3" role="button">
-                                    <input class="form-check-input" type="checkbox" v-bind:value="filter.id" 
+                                    <input class="form-check-input" type="checkbox" :value="filter.id" 
                                         @change="dispatchEvent(groupKey, filter.id, group.selectedFilters)" v-model="group.selectedFilters" />
                                     {% raw %}{{ filter.name }}{% endraw %}
                                 </label>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="main-timeline8">
+            <div v-for="item in cards" class="timeline">
+                <span class="timeline-icon"></span>
+                <span class="year">{% raw %}{{ item.due_formatted }}{% endraw %}</span>
+                <div class="timeline-content">
+                    <h3 class="title">{% raw %}{{ item.name }}{% endraw %}</h3>
+                    <p class="description">
+                        {% raw %}{{ item.desc }}{% endraw %}
+                    </p>
+                    <a :href="item.url" class="btn p-0">Read more</a>
                 </div>
             </div>
         </div>

@@ -54,7 +54,8 @@ new Vue({
                 filters: [],
                 selectedFilters: []
             }
-        }
+        },
+        cards: []
     },
     mounted: function () {
         this.fetchBoards();
@@ -67,10 +68,8 @@ new Vue({
                     this.fetchLabels(selectedFilters)
                     break;
                 case 'lists':
-                    console.log(filterId, selectedFilters)
-                    break;
                 case 'labels':
-                    console.log(filterId, selectedFilters)
+                    this.fetchCards(this.groups.lists.selectedFilters, this.groups.labels.selectedFilters)
                     break;
                 default:
                     break;
@@ -106,6 +105,17 @@ new Vue({
                 .then(data => {
                     this.groups.labels.filters = data;
                     this.groups.labels.collapsed = false;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        },
+        fetchCards(selectedLists, selectedLabels) {
+            url = `/trello/cards?lists=${selectedLists.join(',')}&labels=${selectedLabels.join(',')}`
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    this.cards = data;
                 })
                 .catch((error) => {
                     console.error('Error:', error);

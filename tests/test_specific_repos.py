@@ -181,7 +181,17 @@ class TestSpecificRepository:
 
         items_to_create = []
         for i in range(10):
-            item = {'id': f'C{i}', 'name': f'Card {i}', 'idList': f'{i % 2}', 'idLabels': f'L{i}, L{i+1}'}
+            item = {
+                'id': f'C{i}', 
+                'name': f'Card {i}', 
+                'idList': f'{i % 2}', 
+                'idLabels': f'L{i}, L{i+1}',
+                'due': 'due',
+                'dueComplete': 'dueComplete',
+                'desc': 'desc',
+                'url': 'url',
+                'idBoard': 'idBoard'
+            }
             items_to_create.append(item)
         repo.add_cards(user_id, items_to_create)
 

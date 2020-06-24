@@ -78,7 +78,6 @@ class TrelloApi:
         url = TrelloApi.trello_api_url_board_cards_template.format(board_id, api_key, token)
         data = self._issue_get_request(url)
         return data
-        # return list(map(lambda x: dict({'id': x['id'], 'name': x['name'], 'color': x['color'] }), data))
 
 
 
@@ -88,42 +87,42 @@ class TrelloApi:
 
 
 
-    # this is the important method
-    def get_events(self, token):
-        api_key = current_app.config['TRELLO_API_KEY']
+    # # this is the important method
+    # def get_events(self, token):
+    #     api_key = current_app.config['TRELLO_API_KEY']
 
-        # override the settings - it's getting all the boards
-        settings = {}
-        settings['boards'] = []
-        boards = self.get_boards(token)
-        for board in boards:
-            settings['boards'].append(board['id'])
-        # all this should come from configuration
+    #     # override the settings - it's getting all the boards
+    #     settings = {}
+    #     settings['boards'] = []
+    #     boards = self.get_boards(token)
+    #     for board in boards:
+    #         settings['boards'].append(board['id'])
+    #     # all this should come from configuration
 
-        all_cards = []
-        for board_id in settings['boards']:
-            url = TrelloApi.trello_api_url_board_cards_template.format(board_id, api_key, token)
-            data = self._issue_get_request(url)
-            all_cards.extend(data)
+    #     all_cards = []
+    #     for board_id in settings['boards']:
+    #         url = TrelloApi.trello_api_url_board_cards_template.format(board_id, api_key, token)
+    #         data = self._issue_get_request(url)
+    #         all_cards.extend(data)
 
-        result = list()
-        for item in all_cards:
-            if item['due'] is not None and item['dueComplete'] == False:
-                date_only = date.fromisoformat(item['due'].split('T')[0])
-                desc = item['desc']
-                if len(desc) > 150:
-                    desc = item['desc'][:150] + '...'
-                result.append({
-                    'id': item['id'],
-                    'name': item['name'],
-                    'due': item['due'],
-                    'due_formatted': date_only.strftime('%d %B %Y'),
-                    'desc': desc,
-                    'url': item['url'],
-                    'idBoard': item['idBoard']
-                })
+    #     result = list()
+    #     for item in all_cards:
+    #         if item['due'] is not None and item['dueComplete'] == False:
+    #             date_only = date.fromisoformat(item['due'].split('T')[0])
+    #             desc = item['desc']
+    #             if len(desc) > 150:
+    #                 desc = item['desc'][:150] + '...'
+    #             result.append({
+    #                 'id': item['id'],
+    #                 'name': item['name'],
+    #                 'due': item['due'],
+    #                 'due_formatted': date_only.strftime('%d %B %Y'),
+    #                 'desc': desc,
+    #                 'url': item['url'],
+    #                 'idBoard': item['idBoard']
+    #             })
 
-        result.sort(key=lambda x: x.get('due'))
+    #     result.sort(key=lambda x: x.get('due'))
 
-        return result
+    #     return result
 

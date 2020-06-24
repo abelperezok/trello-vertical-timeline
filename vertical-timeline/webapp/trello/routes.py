@@ -8,6 +8,7 @@ from flask_login import current_user, login_required
 from webapp import trello_api_instance
 from webapp.exceptions import GenericException, UnauthorizedException
 from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
+from _datetime import date
 
 trello = Blueprint('trello', __name__)
 user_repo = UserDataRepository(os.environ['TABLE_NAME'])
@@ -82,6 +83,32 @@ def trello_labels():
     return jsonify(result)
 
 
+@trello.route('/trello/cards')
+@login_required
+def trello_cards():
+    lists = list(filter(lambda x: x, request.args['lists'].split(',')))
+    labels = list(filter(lambda x: x, request.args['labels'].split(',')))
+
+    cards = card_repo.get_cards_filtered(current_user.get_id(), lists=lists, labels=labels)
+
+    # to filter only those with due data and not dueComplete
+    # if item['due'] is not None and item['dueComplete'] == False:
+
+    result = []
+    for item in cards:        
+        date_only = date.fromisoformat(item['due'].split('T')[0]) if item['due'] != 'None' else date(1900, 1, 1)
+        desc = item['desc']
+        if len(desc) > 150:
+            desc = item['desc'][:150] + '...'
+        result.append({
+            'id': item['id'],
+            'name': item['name'],
+            'due_formatted': date_only.strftime('%d %B %Y') if date_only != date(1900, 1, 1) else 'No due date',
+            'desc': desc,
+            'url': item['url']
+        })
+
+    return jsonify(result)
 
 
 

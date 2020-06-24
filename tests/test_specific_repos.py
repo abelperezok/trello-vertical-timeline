@@ -177,3 +177,31 @@ class TestSpecificRepository:
         empty_cards = repo.get_cards(user_id)
 
         assert len(empty_cards) == 0
+
+
+        items_to_create = []
+        for i in range(10):
+            item = {'id': f'C{i}', 'name': f'Card {i}', 'idList': f'{i % 2}', 'idLabels': f'L{i}, L{i+1}'}
+            items_to_create.append(item)
+        repo.add_cards(user_id, items_to_create)
+
+        #  no filters
+        unfiltered_cards = repo.get_cards_filtered(user_id)
+        assert len(unfiltered_cards) == 10
+        # filtering by lists
+        filtered_even_cards = repo.get_cards_filtered(user_id, lists=['0'])
+        assert len(filtered_even_cards) == 5
+        filtered_odd_cards = repo.get_cards_filtered(user_id, lists=['1'])
+        assert len(filtered_odd_cards) == 5
+        filtered_all_cards = repo.get_cards_filtered(user_id, lists=['0', '1'])
+        assert len(filtered_all_cards) == 10
+        filtered_empty_cards = repo.get_cards_filtered(user_id, lists=['0000000'])
+        assert len(filtered_empty_cards) == 0
+        # filtering by labels
+        filtered_L5_cards = repo.get_cards_filtered(user_id, labels=['L5'])
+        assert len(filtered_L5_cards) == 2
+        filtered_L5_L6_cards = repo.get_cards_filtered(user_id, labels=['L5', 'L6'])
+        assert len(filtered_L5_L6_cards) == 3
+        # filtering both lists and labels
+        filtered_multiple1 = repo.get_cards_filtered(user_id, lists=['0'], labels=['L2', 'L4'])
+        assert len(filtered_multiple1) == 2

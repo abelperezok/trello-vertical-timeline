@@ -1,6 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Attr, Key, Or
+from functools import reduce
 
 def buffered(size):
     def wrap(f):
@@ -91,12 +92,14 @@ class RepositoryBase:
         else:
             return response['Items']
 
-    def _table_query(self, pk, sk_prefix):
+    def _table_query(self, pk, sk_prefix, filter_expression = None):
         try:
-            response = self.table.query(
-                KeyConditionExpression=
-                    Key('PK').eq(pk) & Key('SK').begins_with(sk_prefix)
-            )
+            query_args = {
+                'KeyConditionExpression': Key('PK').eq(pk) & Key('SK').begins_with(sk_prefix)
+            }
+            if filter_expression:
+                query_args['FilterExpression'] = filter_expression
+            response = self.table.query(**query_args)
         except ClientError as e:
             print(e.response['Error']['Message'])
         else:
@@ -210,9 +213,9 @@ class DependentEntityRepository(RepositoryBase):
         sk = self._sk_value(entity_key)
         return self._get_item(pk, sk)
 
-    def table_query_by_parent_id(self, parent_key, sk_prefix=None):
+    def table_query_by_parent_id(self, parent_key, sk_prefix=None, filter_expression=None):
         pk = self._pk_value(parent_key)
-        return self._table_query(pk, sk_prefix or self.sk_prefix)
+        return self._table_query(pk, sk_prefix or self.sk_prefix, filter_expression)
 
     def delete_item(self, parent_key, entity_key):
         pk = self._pk_value(parent_key)
@@ -262,9 +265,9 @@ class AssociativeEntityRepository(RepositoryBase):
         sk = self._sk_value(relation_key)
         return self._delete_item(pk, sk)
 
-    def table_query_by_parent_id(self, parent_key, sk_prefix=None):
+    def table_query_by_parent_id(self, parent_key, sk_prefix=None, filter_expression=None):
         pk = self._pk_value(parent_key)
-        return self._table_query(pk, sk_prefix or self.sk_prefix)
+        return self._table_query(pk, sk_prefix or self.sk_prefix, filter_expression)
 
     def gsi1_query_by_parent_id(self, parent_key):
         gsi1 = self._gsi1_value(parent_key)
@@ -423,3 +426,22 @@ class BoardCardRepository:
     def get_cards(self, user_id):
         data = self.repo.table_query_by_parent_id(user_id)
         return list(map(lambda x: dict({'id': x['id'], 'name': x['name'] }), data))
+
+    def get_cards_filtered(self, user_id, lists=[], labels=[]):
+        list_filters = reduce(Or, ([Attr('idList').eq(l) for l in lists])) if len(lists) > 0 else Attr('idList').exists()
+        labels_filters = reduce(Or, ([Attr('idLabels').contains(l) for l in labels])) if len(labels) > 0 else Attr('idLabels').exists()
+
+        filters = list_filters & labels_filters
+
+        data = self.repo.table_query_by_parent_id(user_id, filter_expression=filters)
+        return list(map(lambda x: dict({
+            'id': x['id'], 
+            'name': x['name'],
+            'due': x['due'],
+            'dueComplete': x['dueComplete'],
+            'desc': x['desc'],
+            'url': x['url'],
+            'idBoard': x['idBoard'],
+            'idList': x['idList'],
+            'idLabels': x['idLabels']
+            }), data))

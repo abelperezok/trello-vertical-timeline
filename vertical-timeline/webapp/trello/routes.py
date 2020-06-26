@@ -65,9 +65,15 @@ def trello_boards():
 def trello_lists():
     boards = request.args['boards'].split(',')
     result = []
+    all_boards = board_repo.get_boards(current_user.get_id())
     for board in boards:
-        board_lists = list_repo.get_lists(current_user.get_id(), board)
-        result.extend(board_lists)
+        board_item = [b for b in all_boards if b['id'] == board]
+        if len(board_item) > 0:
+            board_lists = list_repo.get_lists(current_user.get_id(), board)
+            result.append({
+                'name': board_item[0]['name'],
+                'items':board_lists
+            })
     return jsonify(result)
 
 
@@ -76,10 +82,16 @@ def trello_lists():
 def trello_labels():
     boards = request.args['boards'].split(',')
     result = []
+    all_boards = board_repo.get_boards(current_user.get_id())
     for board in boards:
-        board_lists = label_repo.get_labels(current_user.get_id(), board)
-        board_lists_mapped = map(lambda x: dict({'id': x['id'], 'name': f"{x['name']} ({x['color']})" }), board_lists)
-        result.extend(board_lists_mapped)
+        board_item = [b for b in all_boards if b['id'] == board]
+        if len(board_item) > 0:
+            board_lists = label_repo.get_labels(current_user.get_id(), board)
+            board_lists_mapped = list(map(lambda x: dict({'id': x['id'], 'name': f"{x['name']} ({x['color']})" }), board_lists))
+            result.append({
+                'name': board_item[0]['name'],
+                'items':board_lists_mapped
+            })
     return jsonify(result)
 
 

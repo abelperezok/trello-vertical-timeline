@@ -12,26 +12,6 @@ new Vue({
     }
 });
 
-// new Vue({
-//     el: '#timelineFacets',
-//     data: {
-//         collapsed1: false,
-//         collapsed2: true,
-//         collapsed3: true
-//     },
-//     methods: {
-//         toggle1() {
-//             this.collapsed1 = !this.collapsed1;
-//         },
-//         toggle2() {
-//             this.collapsed2 = !this.collapsed2;
-//         },
-//         toggle3() {
-//             this.collapsed3 = !this.collapsed3;
-//         }
-//     }
-// });
-
 new Vue({
     el: '#timelineFacets-2',
     data: {
@@ -61,19 +41,12 @@ new Vue({
         this.fetchBoards();
     },
     methods: {
-        dispatchEvent(type, filterId, selectedFilters) {
-            switch (type) {
-                case 'boards':
-                    this.fetchLists(selectedFilters)
-                    this.fetchLabels(selectedFilters)
-                    break;
-                case 'lists':
-                case 'labels':
-                    this.fetchCards(this.groups.lists.selectedFilters, this.groups.labels.selectedFilters)
-                    break;
-                default:
-                    break;
-            }
+        onSelectBoard(selectedFilters) {
+            this.fetchLists(selectedFilters);
+            this.fetchLabels(selectedFilters);
+        },
+        onSelectListsLabels(){
+            this.fetchCards(this.groups.lists.selectedFilters, this.groups.labels.selectedFilters)
         },
         fetchBoards() {
 

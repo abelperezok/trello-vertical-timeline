@@ -11,9 +11,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8
@@ -37,3 +35,10 @@ jobs:
         AWS_ACCESS_KEY_ID=abc 
         AWS_SECRET_ACCESS_KEY=xyz 
         pytest tests
+    - name: Prepare configuration file
+      run: |
+        echo test > vertical-timeline/webapp/application.cfg
+        echo test2 >> vertical-timeline/webapp/application.cfg
+        cat vertical-timeline/webapp/application.cfg
+    - name: Build
+      run: sam build

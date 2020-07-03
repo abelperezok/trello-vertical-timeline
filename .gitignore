@@ -8,3 +8,4 @@ venv/
 __old__code/
 .vscode/.ropeproject/
 .env
+lib/dynamodb-repository/dynamodb_repository.egg-info/

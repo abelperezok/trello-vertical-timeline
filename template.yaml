@@ -42,13 +42,6 @@ Resources:
     Properties:
       CorsConfiguration: True
 
-      # StageName: !Ref StageName
-      # Tags:
-      #   Tag: Value
-      # AccessLogSettings:
-      #   DestinationArn: !GetAtt AccessLogs.Arn
-      #   Format: $context.requestId
-
 
   S3Integration:
     Type: AWS::ApiGatewayV2::Integration
@@ -176,6 +169,30 @@ Resources:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
 
+  PopulateDataFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: populate-data/
+      Handler: handler.lambda_handler
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoDbTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDbTable
+      Events:
+        PopulateDataEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt TrelloDataQueue.Arn
+            BatchSize: 10
+  
+  TrelloDataQueue:
+    Type: AWS::SQS::Queue
+
+
+
 
 
 Outputs:
@@ -197,3 +214,6 @@ Outputs:
   UserPoolDomain:
       Description: UserPool Domain
       Value: !Ref PoolDomain
+  TrelloDataQueue:
+    Description: "TrelloDataQueue SQS queue"
+    Value: !Ref TrelloDataQueue

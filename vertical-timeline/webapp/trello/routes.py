@@ -1,14 +1,14 @@
 import os
-from datetime import datetime
+from datetime import datetime, date
 
 from flask import (Blueprint, flash, jsonify, redirect, render_template,
-                   request, url_for)
+                   request, url_for, current_app)
 from flask_login import current_user, login_required
 
-from webapp import trello_api_instance
-from webapp.exceptions import GenericException, UnauthorizedException
+from verticaltimeline_common.exceptions import GenericException, UnauthorizedException
 from verticaltimeline_common.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
-from _datetime import date
+from verticaltimeline_common.trello_api import TrelloApi
+
 
 trello = Blueprint('trello', __name__)
 user_repo = UserDataRepository(os.environ['TABLE_NAME'])
@@ -20,6 +20,13 @@ card_repo = BoardCardRepository(os.environ['TABLE_NAME'])
 @trello.route('/account')
 @login_required
 def account():
+
+    trello_api_instance = TrelloApi(
+        trello_app_name = current_app.config['TRELLO_APP_NAME'],
+        trello_auth_scope =  current_app.config['TRELLO_AUTH_SCOPE'],
+        trello_api_key = current_app.config['TRELLO_API_KEY']
+    )
+
     return_url = url_for('trello.token', _external=True)
     model = {}
     user_record = user_repo.get_user_data(current_user.get_id())
@@ -155,26 +162,24 @@ def populate_data():
     user_record = user_repo.get_user_data(current_user.get_id())
     if not user_repo:
         return
-    trello_token = user_record.get('trello_token')
-    # get the fresh boards
-    boards = trello_api_instance.get_boards(trello_token)
-    board_repo.add_boards(current_user.get_id(), boards)
-    for board in boards:
-        # get the fresh lists
-        board_lists = trello_api_instance.get_lists(trello_token, board['id'])
-        # add the fresh lists
-        list_repo.add_lists(current_user.get_id(), board['id'], board_lists)
-        # get the fresh labels
-        board_labels = trello_api_instance.get_labels(trello_token, board['id'])
-        # add the fresh labels
-        label_repo.add_labels(current_user.get_id(), board['id'], board_labels)
-        # get the fresh cards
-        card_list = trello_api_instance.get_cards(trello_token, board['id'])
-        # add the fresh cards
-        card_repo.add_cards(current_user.get_id(), card_list)
-
-
-    user_repo.update_timestamp(current_user.get_id(), datetime.utcnow().isoformat())
+    # trello_token = user_record.get('trello_token')
+    # # get the fresh boards
+    # boards = trello_api_instance.get_boards(trello_token)
+    # board_repo.add_boards(current_user.get_id(), boards)
+    # for board in boards:
+    #     # get the fresh lists
+    #     board_lists = trello_api_instance.get_lists(trello_token, board['id'])
+    #     # add the fresh lists
+    #     list_repo.add_lists(current_user.get_id(), board['id'], board_lists)
+    #     # get the fresh labels
+    #     board_labels = trello_api_instance.get_labels(trello_token, board['id'])
+    #     # add the fresh labels
+    #     label_repo.add_labels(current_user.get_id(), board['id'], board_labels)
+    #     # get the fresh cards
+    #     card_list = trello_api_instance.get_cards(trello_token, board['id'])
+    #     # add the fresh cards
+    #     card_repo.add_cards(current_user.get_id(), card_list)
+    # user_repo.update_timestamp(current_user.get_id(), datetime.utcnow().isoformat())
 
 
 

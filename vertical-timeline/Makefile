@@ -6,6 +6,7 @@ build-WebAppFunction:
 	rsync -av --exclude=*__pycache__ --exclude=Makefile --exclude=static . $(ARTIFACTS_DIR)
 	python -m pip install -r requirements.txt -t $(ARTIFACTS_DIR)
 	python -m pip install $(libpath)/dynamodb-repository/ -t $(ARTIFACTS_DIR)
+	python -m pip install $(libpath)/verticaltimeline-common/ -t $(ARTIFACTS_DIR)
 	rm -rf $(ARTIFACTS_DIR)/bin
 	rm -rf $(ARTIFACTS_DIR)/__pycache__
 

@@ -4,13 +4,9 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_lambda import FlaskLambda
 from flask_awscognito import AWSCognitoAuthentication
 
-from webapp.trello_api import TrelloApi
-
 aws_auth = AWSCognitoAuthentication()
 login_manager = LoginManager()
 login_manager.login_view = "auth.session_expired"
-
-trello_api_instance = TrelloApi()
 
 
 def configure_app(app):

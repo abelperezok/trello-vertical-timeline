@@ -23,6 +23,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         pip install -r vertical-timeline/requirements.txt
+        python -m pip install lib/dynamodb-repository/
+        python -m pip install lib/verticaltimeline-common/
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

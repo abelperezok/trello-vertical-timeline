@@ -49,7 +49,7 @@ def token():
 def token_post():
     trello_token = request.json['token']  # request.form['token']
     user_repo.update_user_token(current_user.get_id(), trello_token)
-    populate_data()
+    # populate_data() ## here to put the message to populate the data
     return jsonify({'redirect': url_for('trello.account', _external=True)})
 
 
@@ -57,7 +57,7 @@ def token_post():
 @login_required
 def revoke():
     user_repo.delete_user_data(current_user.get_id())
-    wipe_data()
+    # wipe_data() ## here to put the message to wipe the data
     return redirect(url_for('trello.account'))
 
 
@@ -130,68 +130,12 @@ def trello_cards():
     return jsonify(result)
 
 
-
-
-
-
-
-
-
-
-def wipe_data():
-    # get the stored boards
-    boards = board_repo.get_boards(current_user.get_id())
-    for board in boards:
-        # get the lists for each board
-        board_lists = list_repo.get_lists(current_user.get_id(), board['id'])
-        # remove the lists from each board
-        list_repo.delete_lists(current_user.get_id(), board['id'], board_lists)
-        # get the labels for each board
-        board_labels = label_repo.get_labels(current_user.get_id(), board['id'])
-        # remove the labels from each board
-        label_repo.delete_labels(current_user.get_id(), board['id'], board_labels)
-
-    # get all the cards for the current user
-    board_cards = card_repo.get_cards(current_user.get_id())
-    # remove all the cards for the current user
-    card_repo.delete_cards(current_user.get_id(), board_cards)
-    # remove the boards
-    board_repo.delete_boards(current_user.get_id(), boards)
-
-def populate_data():
-    user_record = user_repo.get_user_data(current_user.get_id())
-    if not user_repo:
-        return
-    # trello_token = user_record.get('trello_token')
-    # # get the fresh boards
-    # boards = trello_api_instance.get_boards(trello_token)
-    # board_repo.add_boards(current_user.get_id(), boards)
-    # for board in boards:
-    #     # get the fresh lists
-    #     board_lists = trello_api_instance.get_lists(trello_token, board['id'])
-    #     # add the fresh lists
-    #     list_repo.add_lists(current_user.get_id(), board['id'], board_lists)
-    #     # get the fresh labels
-    #     board_labels = trello_api_instance.get_labels(trello_token, board['id'])
-    #     # add the fresh labels
-    #     label_repo.add_labels(current_user.get_id(), board['id'], board_labels)
-    #     # get the fresh cards
-    #     card_list = trello_api_instance.get_cards(trello_token, board['id'])
-    #     # add the fresh cards
-    #     card_repo.add_cards(current_user.get_id(), card_list)
-    # user_repo.update_timestamp(current_user.get_id(), datetime.utcnow().isoformat())
-
-
-
 @trello.route('/trello/populate', methods=['POST'])
 @login_required
 def populate():
-    wipe_data()
-    populate_data()
+    # wipe_data() # put the message in the queue
+    # populate_data()
     return redirect(url_for('trello.account'))
-
-
-
 
 
 

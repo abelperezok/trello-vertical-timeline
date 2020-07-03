@@ -35,10 +35,10 @@ class TrelloApi:
     
         params = {
             'expiration': 'never',
-            'name': self.trello_app_name, # current_app.config['TRELLO_APP_NAME'],
-            'scope': self.trello_auth_scope, # current_app.config['TRELLO_AUTH_SCOPE'],
+            'name': self.trello_app_name,
+            'scope': self.trello_auth_scope,
             'response_type': 'token',
-            'key': self.trello_api_key, # current_app.config['TRELLO_API_KEY'],
+            'key': self.trello_api_key,
             'return_url': return_url
         }
         authorize_url = TrelloApi.base_authorize_url + urlencode(params)

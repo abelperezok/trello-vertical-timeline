@@ -9,3 +9,4 @@ __old__code/
 .vscode/.ropeproject/
 .env
 lib/dynamodb-repository/dynamodb_repository.egg-info/
+lib/verticaltimeline-common/verticaltimeline_common.egg-info/

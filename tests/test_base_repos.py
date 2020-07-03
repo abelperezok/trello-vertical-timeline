@@ -1,8 +1,9 @@
 import sys
 import os
-sys.path.append(os.path.realpath(
-    os.path.dirname(__file__)+"/../vertical-timeline/"))
-from webapp.repository import IndependentEntityRepository, DependentEntityRepository, AssociativeEntityRepository
+sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/../vertical-timeline/"))
+sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/../lib/dynamodb-repository/"))
+
+from dynamodb_repository.base import IndependentEntityRepository, DependentEntityRepository, AssociativeEntityRepository
 
 from tests.conftest import table_name, local_url
 

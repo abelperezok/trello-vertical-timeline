@@ -153,9 +153,7 @@ Resources:
           AttributeType: S
         - AttributeName: GSI1
           AttributeType: S
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
         - IndexName: GSI1
           KeySchema: 
@@ -165,9 +163,6 @@ Resources:
               KeyType: RANGE
           Projection: 
             ProjectionType: ALL
-          ProvisionedThroughput: 
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
 
   PopulateDataFunction:
     Type: AWS::Serverless::Function 
@@ -175,6 +170,7 @@ Resources:
       CodeUri: populate-data/
       Handler: handler.lambda_handler
       Runtime: python3.8
+      Timeout: 300
       Environment:
         Variables:
           TABLE_NAME: !Ref DynamoDbTable
@@ -187,7 +183,9 @@ Resources:
           Properties:
             Queue: !GetAtt TrelloDataQueue.Arn
             BatchSize: 10
-  
+    Metadata:
+      BuildMethod: makefile
+
   TrelloDataQueue:
     Type: AWS::SQS::Queue
 

@@ -46,7 +46,7 @@ class TrelloApi:
 
 
     def get_boards(self, token):
-        url = TrelloApi.trello_api_url_boards_template.format(trello_api_key, token)
+        url = TrelloApi.trello_api_url_boards_template.format(self.trello_api_key, token)
         data = self._issue_get_request(url)
         result = list()
         if data:

@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.realpath(
     os.path.dirname(__file__)+"/../vertical-timeline/"))
-from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
+from verticaltimeline_common.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
 
 from tests.conftest import table_name, local_url
 

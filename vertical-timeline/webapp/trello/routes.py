@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 
 from webapp import trello_api_instance
 from webapp.exceptions import GenericException, UnauthorizedException
-from webapp.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
+from verticaltimeline_common.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
 from _datetime import date
 
 trello = Blueprint('trello', __name__)
@@ -216,59 +216,3 @@ def timeline():
 
 
 
-
-
-# @trello.route('/trello/data')
-# @login_required
-# def trello_data():
-    # list = [ k for k,v in os.environ.items() ]
-
-    # put_user_data(current_user.get_id(), None)
-    # put_user_data(current_user.get_id(), session.get('trello_token'))
-    # delete_user_data(current_user.get_id())
-
-    # token = user_data.get_user_token(current_user.get_id()).get('trello_token')
-    # boards = trello_api_instance.get_boards(token)
-
-    # def _attr(a):
-    #     print(a)
-    #     return { f'{a[0]}':{'S': str(a[1])}}
-    
-    # def _str_item(i):
-    #     result = {}
-    #     for k,v in i.items():
-    #         result[k] = {'S': str(v)}
-    #     return result
-    
-    # def _put_request_item(i):
-    #     return {
-    #         'PutRequest': {
-    #             'Item': _str_item(i)
-    #         }
-    #     }
-
-    # result = map(_str_item, boards)
-    # result = map(_put_request_item, boards)
-
-    # repo = DataRepository(os.environ['TABLE_NAME'])
-
-    # result = repo._batch_add_items(current_user.get_id(), boards)
-
-    # repo = UserBoard()
-    # # result = repo.add_boards(current_user.get_id(), boards)
-    # boards = repo.get_boards(current_user.get_id())
-    # token = user_data.get_user_token(current_user.get_id()).get('trello_token')
-
-    # repo.remove_boards(current_user.get_id(), result)
-
-    # board_id = boards[0]['id']
-    # lists = trello_api_instance.get_lists(token, board_id)
-    # listRepo = BoardList()
-
-    # listRepo.add_lists(board_id, lists)
-
-
-    # return jsonify({
-    #     'data': lists,
-    #     'current_user': current_user.get_id()
-    #     })

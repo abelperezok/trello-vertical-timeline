@@ -8,6 +8,7 @@ from flask_login import current_user, login_required
 from verticaltimeline_common.exceptions import GenericException, UnauthorizedException
 from verticaltimeline_common.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
 from verticaltimeline_common.trello_api import TrelloApi
+from webapp.queue import trello_data_queue_send_message
 
 
 trello = Blueprint('trello', __name__)
@@ -30,10 +31,11 @@ def account():
     return_url = url_for('trello.token', _external=True)
     model = {}
     user_record = user_repo.get_user_data(current_user.get_id())
+    timestamp = user_record.get('timestamp') if user_record else None
     model['authorize_url'] = trello_api_instance.get_authorize_url(return_url)
     model['token'] = '**********' if user_record else None
     model['boards'] = board_repo.get_boards(current_user.get_id())
-    model['last_updated'] = datetime.fromisoformat(user_record.get('timestamp')) if user_record else None
+    model['last_updated'] = datetime.fromisoformat(timestamp) if timestamp else None
     
     return render_template('account.html', model=model)
 
@@ -49,15 +51,15 @@ def token():
 def token_post():
     trello_token = request.json['token']  # request.form['token']
     user_repo.update_user_token(current_user.get_id(), trello_token)
-    # populate_data() ## here to put the message to populate the data
-    return jsonify({'redirect': url_for('trello.account', _external=True)})
+    trello_data_queue_send_message()
+    return jsonify({'redirect': url_for('trello.progress', _external=True)})
 
 
 @trello.route('/revoke', methods=['POST'])
 @login_required
 def revoke():
     user_repo.delete_user_data(current_user.get_id())
-    # wipe_data() ## here to put the message to wipe the data
+    trello_data_queue_send_message()
     return redirect(url_for('trello.account'))
 
 
@@ -133,10 +135,31 @@ def trello_cards():
 @trello.route('/trello/populate', methods=['POST'])
 @login_required
 def populate():
-    # wipe_data() # put the message in the queue
-    # populate_data()
-    return redirect(url_for('trello.account'))
+    user_repo.update_progress(current_user.get_id(), 0, 99999)
+    trello_data_queue_send_message()
+    return redirect(url_for('trello.progress'))
 
+
+@trello.route('/trello/progress')
+@login_required
+def progress():
+    return render_template('progress.html')
+
+@trello.route('/trello/progress/status')
+@login_required
+def progress_status():
+    user_record = user_repo.get_user_data(current_user.get_id())
+    progress = int(user_record.get('progress_current', '0'))
+    total = int(user_record.get('progress_total', '99999'))
+    done = progress == total
+    result = {
+        'progress': progress,
+        'total': total,
+        'done': done,
+        'redirect': url_for('trello.timeline', _external=True) if done else ''
+    }
+    return jsonify(result)
+    
 
 
 @trello.route('/timeline')

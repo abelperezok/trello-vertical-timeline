@@ -5,7 +5,6 @@ from datetime import datetime
 from verticaltimeline_common.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
 from verticaltimeline_common.trello_api import TrelloApi
 
-
 user_repo = UserDataRepository(os.environ['TABLE_NAME'])
 board_repo = UserBoardRepository(os.environ['TABLE_NAME'])
 list_repo = BoardListRepository(os.environ['TABLE_NAME'])
@@ -71,17 +70,21 @@ def wipe_data(user_id):
 def populate_data(user_id, trello):
     user_record = user_repo.get_user_data(user_id)
     if not user_record:
+        print('No user record found for this user, aborting.')
         return
-    print(f'Found user_record')
+    print('Found user_record')
     trello_token = user_record.get('trello_token')
     if not trello_token:
+        print('No trello token found for this user, aborting.')
         return
-    print(f'Found trello token')
+    print('Found trello token')
     # get the fresh boards
     boards = trello.get_boards(trello_token)
-    print(f'Found {len(boards)} boards')
+    total_boards = len(boards)
+    print(f'Found {total_boards} boards')
+    user_repo.update_progress(user_id, 0, total_boards)
     board_repo.add_boards(user_id, boards)
-    for board in boards:
+    for i, board in enumerate(boards):
         # get the fresh lists
         board_lists = trello.get_lists(trello_token, board['id'])
         # add the fresh lists
@@ -97,6 +100,7 @@ def populate_data(user_id, trello):
         # add the fresh cards
         print(f'Adding {len(card_list)} cards to board {board["name"]}')
         card_repo.add_cards(user_id, card_list)
+        user_repo.update_progress(user_id, i+1, total_boards)
     print(f'Updating timestamp')
     user_repo.update_timestamp(user_id, datetime.utcnow().isoformat())
     print(f'all done')

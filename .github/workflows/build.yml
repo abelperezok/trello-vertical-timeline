@@ -47,8 +47,11 @@ jobs:
 
     - name: Prepare configuration file
       run: |
-        echo test > vertical-timeline/webapp/application.cfg
-        echo ${{ secrets.TEST_SECRET }} >> vertical-timeline/webapp/application.cfg
-        cat vertical-timeline/webapp/application.cfg
+        touch application.cfg
+        echo "SECRET_KEY = '${{ secrets.SECRET_KEY }}'" >> application.cfg
+        echo "AWS_DEFAULT_REGION = 'eu-west-2'"         >> application.cfg
+        cat application.cfg
+      working-directory: vertical-timeline/webapp
+
     - name: Build
       run: sam build

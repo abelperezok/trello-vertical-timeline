@@ -26,6 +26,11 @@ class UserDataRepository:
         item['timestamp'] = timestamp
         return self.repo.add_item(user_id, item)
 
+    def update_progress(self, user_id, current, total):
+        item = self.repo.get_item(user_id) or dict()
+        item['progress_current'] = current
+        item['progress_total'] = total
+        return self.repo.add_item(user_id, item)
 
 
 class UserBoardRepository:

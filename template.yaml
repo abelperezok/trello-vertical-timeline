@@ -25,9 +25,12 @@ Resources:
       Environment: 
         Variables:
           TABLE_NAME: !Ref DynamoDbTable
+          QUEUE_NAME: !GetAtt TrelloDataQueue.QueueName
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDbTable
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt TrelloDataQueue.QueueName
       Events:
         AllRequests:
           Type: HttpApi

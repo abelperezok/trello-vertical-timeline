@@ -50,7 +50,10 @@
 <div class="row">
     <div class="col-md-12">
         <p>
-            {{ model.boards|length }} boards Updated on {{ model.last_updated.date() }} at {{ model.last_updated.time().strftime("%H:%M:%S") }}
+            <span>{{ model.boards|length }} boards</span> 
+        {% if model.last_updated %}
+            <span>Updated on {{ model.last_updated.date() }} at {{ model.last_updated.time().strftime("%H:%M:%S") }}</span>
+        {% endif%}
         </p>
     </div>
 </div>

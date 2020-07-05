@@ -5,7 +5,7 @@ from flask import (Blueprint, flash, jsonify, redirect, render_template,
                    request, url_for, current_app)
 from flask_login import current_user, login_required
 
-from verticaltimeline_common.exceptions import GenericException, UnauthorizedException
+from verticaltimeline_common.exceptions import UnauthorizedException
 from verticaltimeline_common.repository import UserDataRepository, UserBoardRepository, BoardListRepository, BoardLabelRepository, BoardCardRepository
 from verticaltimeline_common.trello_api import TrelloApi
 from webapp.queue import trello_data_queue_send_message

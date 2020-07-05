@@ -25,7 +25,7 @@ Resources:
       Environment: 
         Variables:
           TABLE_NAME: !Ref DynamoDbTable
-          QUEUE_NAME: !GetAtt TrelloDataQueue.QueueName
+          QUEUE_URL: !Ref TrelloDataQueue
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDbTable

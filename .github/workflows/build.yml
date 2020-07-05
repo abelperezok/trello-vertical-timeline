@@ -58,12 +58,14 @@ jobs:
         echo "TRELLO_API_KEY = '${{ secrets.TRELLO_API_KEY }}'"                                            >> application.cfg
         echo "TRELLO_APP_NAME = 'Beta Vertical TimeLine App'"                                              >> application.cfg
         echo "TRELLO_AUTH_SCOPE = 'read'"                                                                  >> application.cfg
-
-        cat application.cfg
       working-directory: vertical-timeline/webapp
 
-    - name: Build
+    - name: SAM Build
       run: sam build
 
     - name: SAM Deploy
       run: sam deploy --role-arn ${{ secrets.AWS_ACCESS_ROLE_ARN }} --no-fail-on-empty-changeset 
+
+    - name: Deploy CDN
+      run: make cdn
+      working-directory: vertical-timeline

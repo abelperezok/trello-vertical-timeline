@@ -5,6 +5,10 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.testing.pytestEnabled": true
-    
+    "python.testing.pytestEnabled": true,
+    "python.analysis.extraPaths": [
+        "lib",
+        "vertical-timeline",
+        "populate-data"
+    ],
 }

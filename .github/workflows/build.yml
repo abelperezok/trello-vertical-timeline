@@ -52,7 +52,7 @@ jobs:
         echo "AWS_DEFAULT_REGION = 'eu-west-2'"                                                            >> application.cfg
         echo "AWS_COGNITO_DOMAIN = '${{ secrets.AWS_COGNITO_DOMAIN }}'"                                    >> application.cfg
         echo "AWS_COGNITO_USER_POOL_ID = '${{ secrets.AWS_COGNITO_USER_POOL_ID }}'"                        >> application.cfg
-        echo "AWS_COGNITO_USER_POOL_CLIENT_ID = '${{ secrets.AWS_COGNITO_USER_POOL_ID }}'"                 >> application.cfg
+        echo "AWS_COGNITO_USER_POOL_CLIENT_ID = '${{ secrets.AWS_COGNITO_USER_POOL_CLIENT_ID }}'"          >> application.cfg
         echo "AWS_COGNITO_USER_POOL_CLIENT_SECRET = '${{ secrets.AWS_COGNITO_USER_POOL_CLIENT_SECRET }}'"  >> application.cfg
         echo "AWS_COGNITO_REDIRECT_URL = ''"                                                               >> application.cfg
         echo "TRELLO_API_KEY = '${{ secrets.TRELLO_API_KEY }}'"                                            >> application.cfg

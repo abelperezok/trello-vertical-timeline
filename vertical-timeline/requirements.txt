@@ -42,4 +42,4 @@ urllib3==1.26.5
 wcwidth==0.2.4
 websocket-client==1.4.1
 Werkzeug==1.0.1
-wrapt==1.12.1
+wrapt==1.14.1

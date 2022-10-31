@@ -23,7 +23,7 @@ MarkupSafe==1.1.1
 mccabe==0.6.1
 more-itertools==8.3.0
 packaging==21.3
-pluggy==0.13.1
+pluggy==1.0.0
 py==1.11.0
 pyasn1==0.4.8
 pycodestyle==2.6.0

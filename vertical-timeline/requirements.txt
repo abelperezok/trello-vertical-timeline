@@ -1,6 +1,6 @@
 astroid==2.12.12
 attrs==19.3.0
-autopep8==1.7.0
+autopep8==2.0.0
 boto3==1.26.3
 botocore==1.29.8
 certifi==2022.9.24

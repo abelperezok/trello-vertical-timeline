@@ -41,5 +41,5 @@ toml==0.10.2
 urllib3==1.26.12
 wcwidth==0.2.5
 websocket-client==1.4.1
-Werkzeug==1.0.1
+Werkzeug==2.2.2
 wrapt==1.14.1

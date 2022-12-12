@@ -26,7 +26,7 @@ packaging==22.0
 pluggy==1.0.0
 py==1.11.0
 pyasn1==0.4.8
-pycodestyle==2.9.1
+pycodestyle==2.10.0
 pylint==2.15.7
 pyparsing==3.0.9
 pytest==7.2.0

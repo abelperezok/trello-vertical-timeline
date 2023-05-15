@@ -7,7 +7,7 @@ certifi==2022.12.7
 chardet==5.1.0
 click==8.1.3
 docker==6.1.2
-docutils==0.19
+docutils==0.20
 ecdsa==0.18.0
 Flask==2.3.2
 Flask-AWSCognito==1.3

@@ -35,7 +35,7 @@ python-jose==3.3.0
 requests==2.31.0
 rope==1.10.0
 rsa==4.9
-s3transfer==0.6.2
+s3transfer==0.7.0
 six==1.16.0
 toml==0.10.2
 urllib3==2.0.5

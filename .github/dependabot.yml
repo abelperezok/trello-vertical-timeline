@@ -9,3 +9,5 @@ updates:
     directory: "/vertical-timeline" # Location of package manifests
     schedule:
       interval: "weekly"
+    # Disable version updates for hex dependencies
+    open-pull-requests-limit: 0
